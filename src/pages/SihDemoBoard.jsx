@@ -195,7 +195,7 @@ export const SihDemoBoard = () => {
                 filterMode === 'CRITICAL' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-800 border border-slate-200'
               }`}
             >
-              🔴 Critical Only ({criticalCases.length})
+              Critical Only ({criticalCases.length})
             </button>
             <button
               onClick={() => setFilterMode('MULTILINGUAL')}

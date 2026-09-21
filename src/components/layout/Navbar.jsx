@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Shield, EyeOff, WifiOff, User, PhoneCall, Play, Sparkles } from 'lucide-react';
+import { Shield, EyeOff, WifiOff, User, PhoneCall, Play, Sparkles, Video } from 'lucide-react';
 
 export const Navbar = () => {
   const {
@@ -89,9 +89,9 @@ export const Navbar = () => {
           <select
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="bg-white border border-slate-200 text-xs font-medium text-slate-800 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-slate-400 hidden lg:block"
+            className="bg-white border border-slate-200 text-xs font-medium text-slate-800 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-slate-400 hidden lg:block cursor-pointer"
           >
-            <option value="Auto Detect">🌐 Auto Detect Language</option>
+            <option value="Auto Detect">Auto Detect Language</option>
             <option value="Hindi">Hindi (हिन्दी)</option>
             <option value="Assamese">Assamese (অসমীয়া)</option>
             <option value="Bengali">Bengali (বাংলা)</option>
@@ -110,6 +110,17 @@ export const Navbar = () => {
             <span className="hidden lg:inline text-xs font-medium">Assistant</span>
           </button>
 
+          {/* Join Counsellor Call Button for User / Patient */}
+          <button
+            onClick={() => setActivePage('user-meeting')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold cursor-pointer shadow-xs transition-colors"
+            title="Join Counsellor Meeting"
+          >
+            <Video className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Join Counsellor Call</span>
+            <span className="sm:hidden">Join Call</span>
+          </button>
+
           {/* Role Switcher */}
           <div className="relative">
             <select
@@ -119,6 +130,7 @@ export const Navbar = () => {
             >
               <option value="NHAA Officer">Role: NHAA Officer</option>
               <option value="Counsellor">Role: Counsellor</option>
+              <option value="Patient / Complainant">Role: Patient / Complainant</option>
               <option value="District Officer">Role: District Officer</option>
               <option value="Welfare Officer">Role: Welfare Officer</option>
               <option value="Authorized Administrator">Role: Administrator</option>

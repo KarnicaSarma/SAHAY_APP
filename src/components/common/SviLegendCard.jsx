@@ -21,7 +21,7 @@ export const SviLegendCard = ({ compact = false, className = '' }) => {
         
         {/* LOW 0-25 */}
         <div className="bg-emerald-50 border border-emerald-200 rounded-md p-3 flex items-start gap-2.5">
-          <span className="text-base leading-none shrink-0" role="img" aria-label="Low Risk">🟢</span>
+          <span className="w-3 h-3 rounded-full bg-emerald-600 shrink-0 mt-1" />
           <div>
             <div className="font-mono font-bold text-emerald-900">0–25 | LOW</div>
             <div className="text-slate-700 font-medium text-[11px] mt-0.5">Routine Support</div>
@@ -30,7 +30,7 @@ export const SviLegendCard = ({ compact = false, className = '' }) => {
 
         {/* MODERATE 26-50 */}
         <div className="bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2.5">
-          <span className="text-base leading-none shrink-0" role="img" aria-label="Moderate Risk">🟡</span>
+          <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0 mt-1" />
           <div>
             <div className="font-mono font-bold text-amber-900">26–50 | MODERATE</div>
             <div className="text-slate-700 font-medium text-[11px] mt-0.5">Support Recommended</div>
@@ -39,7 +39,7 @@ export const SviLegendCard = ({ compact = false, className = '' }) => {
 
         {/* HIGH 51-75 */}
         <div className="bg-orange-50 border border-orange-200 rounded-md p-3 flex items-start gap-2.5">
-          <span className="text-base leading-none shrink-0" role="img" aria-label="High Risk">🟠</span>
+          <span className="w-3 h-3 rounded-full bg-orange-600 shrink-0 mt-1" />
           <div>
             <div className="font-mono font-bold text-orange-900">51–75 | HIGH</div>
             <div className="text-slate-700 font-medium text-[11px] mt-0.5">Priority Human Review</div>
@@ -48,7 +48,7 @@ export const SviLegendCard = ({ compact = false, className = '' }) => {
 
         {/* CRITICAL 76-100 */}
         <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-start gap-2.5">
-          <span className="text-base leading-none shrink-0" role="img" aria-label="Critical Risk">🔴</span>
+          <span className="w-3 h-3 rounded-full bg-red-600 shrink-0 mt-1" />
           <div>
             <div className="font-mono font-bold text-red-900">76–100 | CRITICAL</div>
             <div className="text-slate-700 font-medium text-[11px] mt-0.5">Immediate Attention Required</div>

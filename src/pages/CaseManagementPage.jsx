@@ -91,10 +91,10 @@ export const CaseManagementPage = () => {
               className="w-full bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-slate-500 text-xs cursor-pointer font-medium"
             >
               <option value="ALL">All Risk Levels</option>
-              <option value="CRITICAL">🔴 Critical Only</option>
-              <option value="HIGH">🟠 High Risk</option>
-              <option value="MODERATE">🟡 Moderate Risk</option>
-              <option value="LOW">🟢 Low Risk</option>
+              <option value="CRITICAL">Critical Only</option>
+              <option value="HIGH">High Risk</option>
+              <option value="MODERATE">Moderate Risk</option>
+              <option value="LOW">Low Risk</option>
             </select>
           </div>
 

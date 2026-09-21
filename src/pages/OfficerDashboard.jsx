@@ -139,25 +139,25 @@ export const OfficerDashboard = () => {
         </div>
 
         <div className="p-4 rounded-lg bg-emerald-50/60 border border-emerald-200 shadow-xs space-y-1">
-          <div className="text-[11px] font-bold text-emerald-900">🟢 LOW (0–25)</div>
+          <div className="text-[11px] font-bold text-emerald-900">LOW (0–25)</div>
           <div className="text-2xl font-bold text-emerald-900">{lowCount}</div>
           <div className="text-[10px] text-slate-600">Routine Triage</div>
         </div>
 
         <div className="p-4 rounded-lg bg-amber-50/60 border border-amber-200 shadow-xs space-y-1">
-          <div className="text-[11px] font-bold text-amber-900">🟡 MODERATE (26–50)</div>
+          <div className="text-[11px] font-bold text-amber-900">MODERATE (26–50)</div>
           <div className="text-2xl font-bold text-amber-900">{modCount}</div>
           <div className="text-[10px] text-slate-600">Guidance Pathways</div>
         </div>
 
         <div className="p-4 rounded-lg bg-orange-50/60 border border-orange-200 shadow-xs space-y-1">
-          <div className="text-[11px] font-bold text-orange-900">🟠 HIGH (51–75)</div>
+          <div className="text-[11px] font-bold text-orange-900">HIGH (51–75)</div>
           <div className="text-2xl font-bold text-orange-900">{highCount}</div>
           <div className="text-[10px] text-slate-600">Priority Review</div>
         </div>
 
         <div className="p-4 rounded-lg bg-red-50/60 border border-red-200 shadow-xs space-y-1">
-          <div className="text-[11px] font-bold text-red-900">🔴 CRITICAL (76–100)</div>
+          <div className="text-[11px] font-bold text-red-900">CRITICAL (76–100)</div>
           <div className="text-2xl font-bold text-red-900">{critCount}</div>
           <div className="text-[10px] text-red-800 font-bold">Immediate Action</div>
         </div>
@@ -237,10 +237,10 @@ export const OfficerDashboard = () => {
               className="w-full bg-white border border-slate-300 rounded-md px-2 py-1.5 focus:outline-none focus:border-slate-500 text-xs cursor-pointer font-medium"
             >
               <option value="ALL">All Risk Levels ({totalCases})</option>
-              <option value="CRITICAL">🔴 Critical Only ({critCount})</option>
-              <option value="HIGH">🟠 High Risk ({highCount})</option>
-              <option value="MODERATE">🟡 Moderate Risk ({modCount})</option>
-              <option value="LOW">🟢 Low Risk ({lowCount})</option>
+              <option value="CRITICAL">Critical Only ({critCount})</option>
+              <option value="HIGH">High Risk ({highCount})</option>
+              <option value="MODERATE">Moderate Risk ({modCount})</option>
+              <option value="LOW">Low Risk ({lowCount})</option>
             </select>
           </div>
 

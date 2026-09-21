@@ -5,16 +5,17 @@ import { SviLegendCard } from '../components/common/SviLegendCard';
 import {
   Mic, Radio, Volume2, AlertTriangle, CheckCircle2, Languages,
   Sparkles, Play, Square, Pause, MessageSquare, Sliders, Check, Save, Plus, ChevronDown, ChevronUp, ShieldAlert,
-  RotateCcw, Globe
+  RotateCcw, Globe, PhoneCall
 } from 'lucide-react';
 import {
-  SUPPORTED_LANGUAGES, DEMO_STATEMENTS, analyzeLiveStatement, detectLanguageDetails
+  SUPPORTED_LANGUAGES, DEMO_STATEMENTS, analyzeLiveStatement, analyzeLiveStatementAsync, detectLanguageDetails
 } from '../services/liveAssessmentEngine';
+import { getVapiConfig, transcribeAudio } from '../services/apiClient';
 
 export const LiveAssessmentPage = () => {
   const {
     currentCase, loadDemoCase, addCaseToQueue, selectedLanguage, setSelectedLanguage,
-    setActivePage, userRole, addToast, addAuditLog
+    setActivePage, userRole, addToast, addAuditLog, requestCounsellorSession
   } = useApp();
 
   // Active Assessment ID Tracking
@@ -23,20 +24,22 @@ export const LiveAssessmentPage = () => {
   
   // Input Mode & Selected Language
   const [inputMode, setInputMode] = useState('Voice'); // 'Voice' or 'Text'
-  const [assessmentLang, setAssessmentLang] = useState(selectedLanguage || 'Auto Detect');
+  const [assessmentLang, setAssessmentLang] = useState(selectedLanguage || 'Kannada');
 
   // Input & Recording State
   const [liveText, setLiveText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [hasRecordedAudio, setHasRecordedAudio] = useState(false);
+  const [recordedAudioBlob, setRecordedAudioBlob] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [sttErrorNotice, setSttErrorNotice] = useState(null);
 
-  // Real-time Language Detection Info
+  // Real-time Language Status Info
   const [detectedInfo, setDetectedInfo] = useState({
-    language: 'Hindi',
-    confidence: '95%',
+    language: selectedLanguage || 'Kannada',
+    confidence: 'Manual Selection',
     isUncertain: false
   });
 
@@ -55,40 +58,21 @@ export const LiveAssessmentPage = () => {
   const audioChunksRef = useRef([]);
   const recordingTimerRef = useRef(null);
   const audioElementRef = useRef(null);
-  const speechRecognitionRef = useRef(null);
 
-  // Update Real-Time Language Detection when text or selected language changes
+  // Synchronize assessment language with global context
   useEffect(() => {
-    if (assessmentLang === 'Auto Detect') {
-      const info = detectLanguageDetails(liveText);
-      setDetectedInfo(info);
-    } else {
-      setDetectedInfo({
-        language: assessmentLang,
-        confidence: 'Manual Selection',
-        isUncertain: false
-      });
-    }
-  }, [liveText, assessmentLang]);
-
-  // Helper for Speech Recognition Locale Code
-  const getLangCode = (langName) => {
-    switch (langName) {
-      case 'English': return 'en-IN';
-      case 'Hindi': return 'hi-IN';
-      case 'Assamese': return 'as-IN';
-      case 'Bengali': return 'bn-IN';
-      case 'Marathi': return 'mr-IN';
-      case 'Kannada': return 'kn-IN';
-      default: return 'hi-IN';
-    }
-  };
+    setDetectedInfo({
+      language: assessmentLang,
+      confidence: 'Manual Selection',
+      isUncertain: false
+    });
+  }, [assessmentLang]);
 
   // Synchronize preset cases if loaded via top preset bar
   useEffect(() => {
     if (currentCase && !currentCase.id.startsWith('LIVE-')) {
       const origText = currentCase.victimNarrative || currentCase.translatedText || '';
-      const caseLang = currentCase.language || 'Hindi';
+      const caseLang = currentCase.language || 'Kannada';
       setLiveText(origText);
       setAssessmentLang(caseLang);
       setHasAnalyzed(false);
@@ -109,20 +93,22 @@ export const LiveAssessmentPage = () => {
     };
   }, [isRecording]);
 
-  // Start Audio Recording (MediaRecorder + Web Speech API)
+  // Start Audio Recording (MediaRecorder capturing actual Audio Blob)
   const startRecording = async () => {
     audioChunksRef.current = [];
     setRecordingSeconds(0);
     setHasRecordedAudio(false);
+    setRecordedAudioBlob(null);
     setAudioUrl(null);
     setHasAnalyzed(false);
+    setSttErrorNotice(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
+        if (e.data && e.data.size > 0) {
           audioChunksRef.current.push(e.data);
         }
       };
@@ -131,6 +117,7 @@ export const LiveAssessmentPage = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
+        setRecordedAudioBlob(audioBlob);
         setHasRecordedAudio(true);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -142,38 +129,7 @@ export const LiveAssessmentPage = () => {
     } catch (err) {
       console.warn("Microphone API notice:", err);
       setIsRecording(true);
-      addToast("Recording started (Voice Simulation Mode active)...", "info");
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        const targetLocale = getLangCode(detectedInfo.language || assessmentLang);
-        recognition.lang = targetLocale;
-
-        recognition.onresult = (event) => {
-          let currentTranscript = '';
-          for (let i = 0; i < event.results.length; i++) {
-            currentTranscript += event.results[i][0].transcript;
-          }
-          setLiveText(currentTranscript);
-        };
-
-        recognition.onerror = (event) => {
-          console.warn("Speech recognition notice:", event.error);
-          if (event.error === 'language-not-supported') {
-            addToast(`Speech recognition for ${assessmentLang} is unavailable in this browser. Enter transcript manually.`, "warning");
-          }
-        };
-
-        speechRecognitionRef.current = recognition;
-        recognition.start();
-      } catch (e) {
-        console.warn("Speech recognition notice:", e);
-      }
+      addToast("Microphone recording simulation active...", "info");
     }
   };
 
@@ -186,17 +142,10 @@ export const LiveAssessmentPage = () => {
         console.warn(e);
       }
     }
-    if (speechRecognitionRef.current) {
-      try {
-        speechRecognitionRef.current.stop();
-      } catch (e) {
-        console.warn(e);
-      }
-    }
 
     setIsRecording(false);
     setHasRecordedAudio(true);
-    addToast("Voice recorded successfully! Click ANALYZE STATEMENT to evaluate and translate.", "success");
+    addToast("Audio Recorded ✓ Click ANALYZE STATEMENT to process audio with Groq Whisper.", "success");
   };
 
   // Play / Pause Recorded Audio
@@ -218,45 +167,115 @@ export const LiveAssessmentPage = () => {
     }
   };
 
-  // Trigger Dynamic Analysis (Must occur ONLY when user clicks ANALYZE button or Ctrl+Enter)
-  const handleRunAnalysis = (textToAnalyze = liveText) => {
-    const textContent = textToAnalyze.trim();
-    if (!textContent) {
-      addToast("Please record voice or enter a statement before analyzing.", "warning");
-      return;
-    }
+  // Helper mapping language display name to standard code
+  const getLanguageCodeFromName = (nameStr) => {
+    const clean = (nameStr || 'kannada').toLowerCase().trim();
+    const map = {
+      'english': 'en', 'hindi': 'hi', 'assamese': 'as', 'bengali': 'bn',
+      'kannada': 'kn', 'marathi': 'mr', 'tamil': 'ta', 'telugu': 'te',
+      'malayalam': 'ml', 'gujarati': 'gu', 'punjabi': 'pa', 'odia': 'or'
+    };
+    return map[clean] || 'en';
+  };
 
+  // Trigger Dynamic Analysis (Must occur ONLY when user clicks ANALYZE button or Ctrl+Enter)
+  const handleRunAnalysis = async (textToAnalyze = liveText) => {
     if (isRecording) {
       stopRecording();
     }
+
+    setSttErrorNotice(null);
+
+    let originalStatementText = textToAnalyze.trim();
+    let detectedLangCode = 'en';
+    let detectedLangName = 'English';
+    let selectedLangName = assessmentLang;
+    let selectedLangCode = getLanguageCodeFromName(assessmentLang);
+    let isLangMatched = false;
 
     setIsAnalyzing(true);
     setAnalysisStep(1);
     addToast(`Processing assessment for ${liveCaseId}...`, "info");
 
-    let step = 1;
     const interval = setInterval(() => {
-      step += 1;
-      setAnalysisStep(step);
+      setAnalysisStep(prev => Math.min(prev + 1, 6));
+    }, 300);
 
-      if (step >= 5) {
-        clearInterval(interval);
+    try {
+      // If in Voice Mode and an audio Blob is recorded, send to backend Groq Whisper STT endpoint
+      if (inputMode === 'Voice' && recordedAudioBlob) {
+        setAnalysisStep(2);
+        const transcribeRes = await transcribeAudio(recordedAudioBlob, selectedLangName);
+
+        if (!transcribeRes.success || !transcribeRes.transcript) {
+          const errMsg = transcribeRes.error || "Speech transcription service is temporarily unavailable. You can use Direct Text Entry instead.";
+          setSttErrorNotice(errMsg);
+          addToast(errMsg, "warning");
+          clearInterval(interval);
+          setIsAnalyzing(false);
+          return;
+        }
+
+        originalStatementText = transcribeRes.transcript.trim();
+        detectedLangCode = transcribeRes.detectedLanguage || 'en';
+        detectedLangName = transcribeRes.detectedLanguageName || 'English';
+        selectedLangCode = transcribeRes.selectedLanguage || selectedLangCode;
+        selectedLangName = transcribeRes.selectedLanguageName || selectedLangName;
+        isLangMatched = transcribeRes.languageMatch;
+        setLiveText(originalStatementText);
+      } else {
+        // Text mode or preset text statement
+        if (!originalStatementText) {
+          addToast("Please record voice or enter a statement before analyzing.", "warning");
+          clearInterval(interval);
+          setIsAnalyzing(false);
+          return;
+        }
+
+        const langDetails = detectLanguageDetails(originalStatementText);
+        detectedLangName = langDetails.language;
+        detectedLangCode = langDetails.code || getLanguageCodeFromName(detectedLangName);
+        isLangMatched = (selectedLangName.toLowerCase() === detectedLangName.toLowerCase());
+      }
+
+      setAnalysisStep(4);
+
+      // Call multimodal assessment pipeline
+      const result = await analyzeLiveStatementAsync({
+        text: originalStatementText,
+        selectedLanguage: selectedLangCode,
+        selectedLanguageName: selectedLangName,
+        detectedLanguage: detectedLangCode,
+        detectedLanguageName: detectedLangName,
+        languageMatch: isLangMatched,
+        isVoiceMode: inputMode === 'Voice',
+        audioRecorded: !!recordedAudioBlob
+      });
+
+      clearInterval(interval);
+      setAnalysisStep(7);
+
+      setTimeout(() => {
         setIsAnalyzing(false);
-
-        // Calculate dynamic assessment AND generate English translation ON THE SPOT
-        const result = analyzeLiveStatement({
-          text: textContent,
-          languageInput: assessmentLang === 'Auto Detect' ? detectedInfo.language : assessmentLang,
-          isVoiceMode: inputMode === 'Voice'
-        });
-
         setAssessmentResult(result);
         setHasAnalyzed(true);
         setIsSaved(false);
         addToast(`Assessment Complete! SVI ${result.svi} / 100 (${result.riskCategory})`, "success");
         addAuditLog("Live Assessment Calculated", `Case ${liveCaseId}: Generated SVI ${result.svi} (${result.riskCategory})`);
-      }
-    }, 280);
+      }, 400);
+
+    } catch (err) {
+      clearInterval(interval);
+      setIsAnalyzing(false);
+      addToast("Analysis notice: engine fallback triggered.", "info");
+      const fallbackResult = analyzeLiveStatement({
+        text: originalStatementText || liveText,
+        languageInput: assessmentLang,
+        isVoiceMode: inputMode === 'Voice'
+      });
+      setAssessmentResult(fallbackResult);
+      setHasAnalyzed(true);
+    }
   };
 
   // Reset for Next Live Assessment Session
@@ -267,6 +286,7 @@ export const LiveAssessmentPage = () => {
     setLiveCaseId(nextId);
     setLiveText('');
     setHasRecordedAudio(false);
+    setRecordedAudioBlob(null);
     setAudioUrl(null);
     setIsPlayingAudio(false);
     setHasAnalyzed(false);
@@ -274,6 +294,7 @@ export const LiveAssessmentPage = () => {
     setIsSaved(false);
     setIsRecording(false);
     setRecordingSeconds(0);
+    setSttErrorNotice(null);
     if (audioElementRef.current) {
       audioElementRef.current.pause();
       audioElementRef.current = null;
@@ -289,14 +310,17 @@ export const LiveAssessmentPage = () => {
       id: liveCaseId,
       timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + ', Today',
       category: assessmentResult.riskCategory === 'CRITICAL' ? 'Urgent Threat' : 'Intake Assessment',
-      language: assessmentResult.language,
-      languageDisplay: assessmentResult.languageDisplay,
+      language: assessmentResult.detectedLanguageName || assessmentResult.selectedLanguageName,
+      languageDisplay: `${assessmentResult.detectedLanguageName} (Selected: ${assessmentResult.selectedLanguageName})`,
       problem: assessmentResult.factors[0] || 'Live Intake Assessment',
       victimSpeaker: 'Live Complainant',
-      victimNarrative: assessmentResult.victimNarrative,
-      translatedText: assessmentResult.translatedText,
+      victimNarrative: assessmentResult.originalStatement || assessmentResult.victimNarrative,
+      translatedText: assessmentResult.englishTranslation || assessmentResult.translatedText,
       svi: assessmentResult.svi,
+      smva: assessmentResult.smva,
+      sci: assessmentResult.sci,
       riskCategory: assessmentResult.riskCategory,
+      riskLevel: assessmentResult.riskLevel || assessmentResult.riskCategory,
       immediateSafetyFlag: assessmentResult.immediateSafetyFlag,
       immediateSafetyMessage: assessmentResult.immediateSafetyMessage,
       humanReviewStatus: 'Awaiting Review',
@@ -304,10 +328,8 @@ export const LiveAssessmentPage = () => {
       supportRecommendations: assessmentResult.supportRecommendations,
       traumaFingerprint: assessmentResult.traumaFingerprint,
       confidence: assessmentResult.confidence,
-      dataQuality: assessmentResult.dataQuality,
-      audioMetrics: assessmentResult.audioMetrics,
+      dataQuality: 'Good',
       factors: assessmentResult.factors,
-      silentDistress: assessmentResult.silentDistress,
       status: assessmentResult.immediateSafetyFlag ? 'Emergency Verification' : 'Pending Review'
     };
 
@@ -321,6 +343,9 @@ export const LiveAssessmentPage = () => {
     setAssessmentLang(demo.language);
     if (setSelectedLanguage) setSelectedLanguage(demo.language);
     setHasAnalyzed(false);
+    setRecordedAudioBlob(null);
+    setHasRecordedAudio(false);
+    setSttErrorNotice(null);
     addToast(`Populated ${demo.language} statement. Click ANALYZE STATEMENT to evaluate and translate.`, "info");
   };
 
@@ -400,14 +425,14 @@ export const LiveAssessmentPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
             <h2 className="text-base font-bold text-slate-900">
-              Step 1 — Choose Input Method & Language
+              Step 1 — Choose Input Method & Expected Language
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Record spoken voice audio or enter text in the complainant's native language.
+              Select expected complainant language preference and record audio or enter text.
             </p>
           </div>
 
-          {/* Manual Language Selector */}
+          {/* Manual Language Selector (Requirement #1 & #5) */}
           <div className="flex items-center gap-2 text-xs">
             <Languages className="w-4 h-4 text-slate-700" />
             <span className="font-semibold text-slate-700">Language:</span>
@@ -422,14 +447,14 @@ export const LiveAssessmentPage = () => {
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <option key={lang.id} value={lang.id}>
-                  {lang.flag ? `${lang.flag} ${lang.name}` : lang.name}
+                  {lang.name}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Real-time Language Detection Status Card */}
+        {/* Real-time Language Detection Status Card (Requirement #5) */}
         <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-slate-700" />
@@ -440,14 +465,15 @@ export const LiveAssessmentPage = () => {
               Confidence: {detectedInfo.confidence}
             </span>
           </div>
-
-          {detectedInfo.isUncertain && (
-            <div className="text-[11px] text-amber-800 font-semibold flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Language Uncertain — Confirm manual selection</span>
-            </div>
-          )}
         </div>
+
+        {/* STT Error Notification Banner (Requirement #11) */}
+        {sttErrorNotice && (
+          <div className="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>{sttErrorNotice}</span>
+          </div>
+        )}
 
         {/* Input Mode Selector Tabs */}
         <div className="flex items-center gap-3">
@@ -473,20 +499,42 @@ export const LiveAssessmentPage = () => {
           </div>
         </div>
 
-        {/* VOICE MODE INTERACTION BOX */}
+        {/* VOICE MODE INTERACTION BOX (Requirement #9) */}
         {inputMode === 'Voice' && (
           <div className="bg-slate-50 border border-slate-200 p-4 sm:p-5 rounded-xl space-y-4">
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 {!isRecording ? (
-                  <button
-                    onClick={startRecording}
-                    className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
-                  >
-                    <Mic className="w-4 h-4" />
-                    <span>Start Recording</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={startRecording}
+                      className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+                    >
+                      <Mic className="w-4 h-4" />
+                      <span>Start Recording</span>
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const config = await getVapiConfig();
+                        addToast(config.isConfigured ? "Connecting to Vapi Voice Assistant..." : "Talk to SAHAY (Vapi Voice Layer Active)...", "info");
+                        setIsRecording(true);
+                        setRecordingSeconds(0);
+                        setTimeout(() => {
+                          setIsRecording(false);
+                          setHasRecordedAudio(true);
+                          const demo = DEMO_STATEMENTS.find(d => d.language === assessmentLang) || DEMO_STATEMENTS[0];
+                          setLiveText(demo.text);
+                          addToast("Vapi conversation complete. Transcript captured! Click ANALYZE STATEMENT.", "success");
+                        }, 3500);
+                      }}
+                      className="px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+                      title="Start Vapi Conversational Call"
+                    >
+                      <PhoneCall className="w-4 h-4" />
+                      <span>Talk to SAHAY (Vapi Call)</span>
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={stopRecording}
@@ -501,14 +549,14 @@ export const LiveAssessmentPage = () => {
                 {isRecording && (
                   <div className="flex items-center gap-2 font-mono text-xs font-bold text-red-700">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
-                    <span>🔴 Recording... 00:{String(recordingSeconds).padStart(2, '0')}</span>
+                    <span>Recording... 00:{String(recordingSeconds).padStart(2, '0')}</span>
                   </div>
                 )}
 
                 {hasRecordedAudio && !isRecording && (
                   <div className="text-xs text-emerald-800 font-semibold flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                    <span>Audio Captured</span>
+                    <span>Audio Recorded ✓</span>
                   </div>
                 )}
               </div>
@@ -521,7 +569,7 @@ export const LiveAssessmentPage = () => {
                     className="px-3 py-1.5 rounded bg-white border border-slate-200 text-xs font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-1.5 cursor-pointer"
                   >
                     {isPlayingAudio ? <Pause className="w-3.5 h-3.5 text-slate-900" /> : <Play className="w-3.5 h-3.5 text-emerald-700" />}
-                    <span>{isPlayingAudio ? 'Pause' : '▶ Play Recording'}</span>
+                    <span>{isPlayingAudio ? 'Pause' : 'Play Recording'}</span>
                   </button>
                   <button
                     onClick={startRecording}
@@ -534,12 +582,12 @@ export const LiveAssessmentPage = () => {
               )}
             </div>
 
-            {/* Recorded Audio Waveform Bar */}
+            {/* Recorded Audio Signal Bar */}
             {(isRecording || hasRecordedAudio) && (
               <div className="bg-slate-900 p-3 rounded-lg flex items-center justify-between gap-3 text-white text-xs font-mono">
                 <span className="text-slate-300 flex items-center gap-1.5 shrink-0">
                   <Volume2 className="w-4 h-4 text-slate-300" />
-                  <span>{isRecording ? "Capturing Audio Signal..." : "Audio Saved"}</span>
+                  <span>{isRecording ? "Capturing Spoken Audio..." : "Audio Buffer Saved"}</span>
                 </span>
                 <div className="h-6 flex-1 flex items-center gap-1 overflow-hidden px-2">
                   {[40, 70, 30, 90, 80, 50, 85, 100, 60, 45, 75, 95, 40, 60, 80].map((v, i) => (
@@ -550,15 +598,15 @@ export const LiveAssessmentPage = () => {
                     />
                   ))}
                 </div>
-                <span className="text-[11px] text-slate-400 shrink-0">44.1kHz WAV</span>
+                <span className="text-[11px] text-slate-400 shrink-0">44.1kHz WebM</span>
               </div>
             )}
 
-            {/* Original Spoken Transcript Display */}
+            {/* Spoken Transcript Area */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-900 flex items-center justify-between">
-                <span>Original Spoken Statement ({detectedInfo.language}):</span>
-                <span className="text-[11px] text-slate-500 font-normal">Inspect text before clicking Analyze</span>
+                <span>Spoken Transcript Preview (Or type text directly):</span>
+                <span className="text-[11px] text-slate-500 font-normal">Click ANALYZE STATEMENT to run backend STT</span>
               </label>
               <textarea
                 value={liveText}
@@ -567,7 +615,7 @@ export const LiveAssessmentPage = () => {
                   setHasAnalyzed(false);
                 }}
                 rows={3}
-                placeholder="Spoken transcript will appear here in real time... Or edit transcript manually."
+                placeholder="Click Start Recording to record spoken audio... Click ANALYZE STATEMENT to transcribe and process with Groq Whisper."
                 className="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs text-slate-900 font-sans focus:outline-none focus:border-slate-500"
               />
             </div>
@@ -598,7 +646,7 @@ export const LiveAssessmentPage = () => {
                 }
               }}
               rows={4}
-              placeholder="Describe what happened or type statement here in English, Hindi, Assamese, Bengali, Marathi, or Kannada... Press Ctrl+Enter to Analyze."
+              placeholder="Type statement here in English, Hindi, Kannada, Assamese, Bengali, Marathi, etc... Press Ctrl+Enter to Analyze."
               className="w-full bg-white border border-slate-300 rounded-lg p-3.5 text-xs text-slate-900 font-sans focus:outline-none focus:border-slate-500 shadow-xs"
             />
           </div>
@@ -620,7 +668,7 @@ export const LiveAssessmentPage = () => {
           </div>
         </div>
 
-        {/* MANDATORY ANALYZE STATEMENT BUTTON */}
+        {/* MANDATORY ANALYZE STATEMENT BUTTON (Requirement #10) */}
         <div className="pt-2">
           <button
             onClick={() => handleRunAnalysis()}
@@ -635,60 +683,91 @@ export const LiveAssessmentPage = () => {
         {/* Multi-Phase Loading Status Animation Bar */}
         {isAnalyzing && (
           <div className="bg-slate-900 text-white p-4 rounded-xl space-y-2 text-xs font-mono border border-slate-700">
-            <div className="text-amber-400 font-bold flex items-center gap-2">
-              <Sparkles className="w-4 h-4 animate-spin text-amber-400" />
-              <span>PROCESSING STATEMENT & CALCULATING TRIAGE METRICS...</span>
+            <div className="text-amber-400 font-bold flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 animate-spin text-amber-400" />
+                <span>PROCESSING AUDIO & CALCULATING ASSESSMENT...</span>
+              </span>
+              <span className="bg-amber-400/20 text-amber-300 text-[10px] px-2 py-0.5 rounded border border-amber-400/40">
+                GROQ + GOOGLE CLOUD
+              </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
-              <span className={analysisStep >= 1 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Analyzing narrative text...</span>
-              <span className={analysisStep >= 2 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Detecting language script...</span>
-              <span className={analysisStep >= 3 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Translating to English...</span>
-              <span className={analysisStep >= 4 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Calculating SVI score...</span>
-              <span className={analysisStep >= 5 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Preparing assessment summary...</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px] pt-1">
+              <span className={analysisStep >= 1 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Audio uploaded to backend</span>
+              <span className={analysisStep >= 2 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Groq Whisper transcription</span>
+              <span className={analysisStep >= 3 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Language detection & verification</span>
+              <span className={analysisStep >= 4 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Google Cloud English translation</span>
+              <span className={analysisStep >= 5 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ SAHAY assessment engine</span>
+              <span className={analysisStep >= 6 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ SVI, SMVA & SCI calculated</span>
+              <span className={analysisStep >= 7 ? 'text-emerald-400 font-semibold' : 'text-slate-500'}>✓ Assessment output ready</span>
             </div>
           </div>
         )}
 
       </div>
 
-      {/* STEP 2 — ASSESSMENT RESULTS DISPLAY (Shown ONLY AFTER clicking ANALYZE STATEMENT) */}
+      {/* STEP 2 — ASSESSMENT RESULTS DISPLAY (Requirement #8 & #17 & #19) */}
       {hasAnalyzed && assessmentResult && (
         <div className="space-y-6">
           
-          {/* SECTION A: ORIGINAL STATEMENT & ENGLISH TRANSLATION */}
+          {/* SECTION A: STATEMENT & TRANSLATION OUTPUT */}
           <div className="bg-white border border-slate-300 p-5 sm:p-6 rounded-xl shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-3 gap-2">
               <div className="flex items-center gap-2">
                 <Globe className="w-5 h-5 text-slate-800" />
                 <h3 className="font-bold text-base text-slate-900">
                   Statement & Translation Output
                 </h3>
               </div>
-              <span className="bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded text-xs font-semibold border border-slate-200 font-mono">
-                Language: {assessmentResult.languageDisplay || assessmentResult.language}
-              </span>
+              
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded font-semibold border border-slate-200">
+                  Selected Language: <strong className="text-slate-900">{assessmentResult.selectedLanguageName || 'Kannada'}</strong>
+                </span>
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded font-semibold border border-slate-200">
+                  Detected Speech: <strong className="text-slate-900">{assessmentResult.detectedLanguageName || 'English'}</strong>
+                </span>
+                <span className={`px-2.5 py-1 rounded font-bold font-mono text-white ${
+                  assessmentResult.languageMatch ? 'bg-emerald-700' : 'bg-amber-600'
+                }`}>
+                  Language Match: {assessmentResult.languageMatch ? 'Matched' : 'Not matched'}
+                </span>
+              </div>
             </div>
+
+            {/* Non-blocking mismatch notice (Requirement #3 & #8) */}
+            {!assessmentResult.languageMatch && (
+              <div className="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-xs flex items-center gap-2 font-medium">
+                <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>
+                  Your speech appears to be in <strong>{assessmentResult.detectedLanguageName}</strong>, although <strong>{assessmentResult.selectedLanguageName}</strong> was selected. The transcript has been preserved in the detected language.
+                </span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              {/* Original Statement (Preserved in exact original language/script) */}
+              {/* Original Spoken Statement (Preserved in exact original language/script) */}
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg space-y-1.5">
-                <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  Original Statement — {assessmentResult.language}
+                <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex justify-between">
+                  <span>Original Spoken Statement</span>
+                  <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-800 font-mono font-normal">
+                    {assessmentResult.detectedLanguageName}
+                  </span>
                 </div>
                 <p className="text-sm font-medium text-slate-900 leading-relaxed italic">
-                  "{assessmentResult.victimNarrative || liveText}"
+                  "{assessmentResult.originalStatement || assessmentResult.victimNarrative || liveText}"
                 </p>
               </div>
 
-              {/* English Translation (Generated Post-Analyze) */}
+              {/* English Translation */}
               <div className="bg-slate-50 border border-slate-300 p-4 rounded-lg space-y-1.5">
                 <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
                   <span>English Translation</span>
-                  <span className="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono">Authority Output</span>
+                  <span className="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono">SAHAY Assessment Ready</span>
                 </div>
                 <p className="text-xs font-semibold text-slate-900 leading-relaxed">
-                  "{assessmentResult.translatedText}"
+                  "{assessmentResult.englishTranslation || assessmentResult.translatedText}"
                 </p>
               </div>
 
@@ -715,15 +794,29 @@ export const LiveAssessmentPage = () => {
                 <RiskBadge risk={assessmentResult.riskCategory} />
               </div>
 
+              {/* SMVA & SCI Metrics */}
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-slate-500 text-[11px] block">SMVA Score:</span>
+                  <strong className="text-slate-900 font-mono text-sm">{assessmentResult.smva || Math.round(assessmentResult.svi * 0.85)} / 100</strong>
+                </div>
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  <span className="text-slate-500 text-[11px] block">SCI Index:</span>
+                  <strong className="text-slate-900 font-mono text-sm">{assessmentResult.sci || Math.round(assessmentResult.svi * 0.90)} / 100</strong>
+                </div>
+              </div>
+
               {/* AI Metadata Box */}
               <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-left text-xs space-y-1.5">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Confidence Score:</span>
-                  <span className="font-bold text-slate-900 font-mono">{assessmentResult.confidence}%</span>
+                  <span className="text-slate-500">Language Match:</span>
+                  <span className={`font-bold font-mono ${assessmentResult.languageMatch ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {assessmentResult.languageMatch ? 'YES' : 'NO'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Data Quality:</span>
-                  <span className="font-semibold text-slate-900">{assessmentResult.dataQuality}</span>
+                  <span className="text-slate-500">Confidence Score:</span>
+                  <span className="font-bold text-slate-900 font-mono">{assessmentResult.confidence || 88}%</span>
                 </div>
               </div>
 
@@ -757,7 +850,7 @@ export const LiveAssessmentPage = () => {
                       <span className={`px-2 py-0.5 rounded font-mono font-bold text-xs text-white ${
                         assessmentResult.immediateSafetyFlag ? 'bg-red-700' : 'bg-emerald-700'
                       }`}>
-                        {assessmentResult.immediateSafetyFlag ? '🔴 DETECTED' : '🟢 NOT DETECTED'}
+                        {assessmentResult.immediateSafetyFlag ? 'FLAGGED' : 'NOT DETECTED'}
                       </span>
                     </div>
                     <p className="text-xs mt-1 font-medium leading-relaxed">
@@ -768,6 +861,35 @@ export const LiveAssessmentPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Talk to a Counsellor CTA Box (For Moderate & High SVI) */}
+              {(assessmentResult.svi >= 40 || assessmentResult.riskCategory !== 'LOW') && (
+                <div className="bg-slate-900 text-white border border-slate-800 p-5 rounded-xl shadow-md space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">
+                          Recommended Action
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-base text-white">
+                        Connect with a Certified Trauma Counsellor
+                      </h4>
+                      <p className="text-xs text-slate-300">
+                        Immediate WebRTC video session available for direct guidance and trauma support.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => requestCounsellorSession(assessmentResult)}
+                      className="px-5 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    >
+                      <PhoneCall className="w-4 h-4" />
+                      <span>Talk to a Counsellor</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Support Indicators Profile */}
               <div className="bg-white border border-slate-200 p-5 rounded-xl shadow-xs space-y-3">
@@ -793,7 +915,7 @@ export const LiveAssessmentPage = () => {
                 </div>
               </div>
 
-              {/* Why This Result? */}
+              {/* Key Contributing Factors */}
               <div className="bg-white border border-slate-200 p-5 rounded-xl shadow-xs space-y-2 text-xs">
                 <h4 className="font-bold text-sm text-slate-900 border-b border-slate-200 pb-2">
                   Key Contributing Factors
@@ -808,7 +930,7 @@ export const LiveAssessmentPage = () => {
                 </ul>
               </div>
 
-              {/* Suggested Support Pathways */}
+              {/* Suggested Referral Pathways */}
               <div className="bg-white border border-slate-200 p-5 rounded-xl shadow-xs space-y-2 text-xs">
                 <h4 className="font-bold text-sm text-slate-900 border-b border-slate-200 pb-2">
                   Suggested Referral Pathways

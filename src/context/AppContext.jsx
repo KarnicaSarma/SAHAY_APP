@@ -18,6 +18,33 @@ export const AppProvider = ({ children }) => {
   // Toggles & Settings
   const [isLowBandwidth, setIsLowBandwidth] = useState(false);
   const [isDiscreetMode, setIsDiscreetMode] = useState(false);
+
+  // Counselling Queue State
+  const [counsellingQueue, setCounsellingQueue] = useState([
+    {
+      sessionId: 'COUNSELLOR-ROOM-101',
+      caseId: 'LIVE-001',
+      patientName: 'Live Intake Complainant',
+      language: 'Assamese',
+      svi: 72,
+      riskCategory: 'HIGH',
+      requestTime: '10 mins ago',
+      status: 'Waiting for Counsellor',
+      narrative: 'মোক বাৰে বাৰে ভাবুকি দিয়া হৈছে আৰু এতিয়া মোৰ ভয় লাগিছে।'
+    },
+    {
+      sessionId: 'COUNSELLOR-ROOM-102',
+      caseId: 'SAHAY-004',
+      patientName: 'Sunita D. (Complainant)',
+      language: 'Kannada',
+      svi: 88,
+      riskCategory: 'CRITICAL',
+      requestTime: '2 mins ago',
+      status: 'Waiting for Counsellor',
+      narrative: 'ನನಗೆ ಪದೇ ಪದೇ ಬೆದರಿಕೆಗಳು ಬರುತ್ತಿವೆ ಮತ್ತು ಈಗ ನನಗೆ ಮನೆಯಿಂದ ಹೊರಗೆ ಹೋಗಲು ಭಯವಾಗುತ್ತಿದೆ'
+    }
+  ]);
+  const [activeCounsellingSession, setActiveCounsellingSession] = useState(null);
   const [accessibility, setAccessibility] = useState({
     fontSize: 'normal', // normal, large, x-large
     highContrast: false,
@@ -100,12 +127,71 @@ export const AppProvider = ({ children }) => {
     setUserRole(role);
     let name = "Officer P. Verma";
     if (role === 'Counsellor') name = "Dr. S. Sharma (Senior Counsellor)";
+    else if (role === 'Patient / Complainant') name = "Sunita D. (Complainant / Patient)";
     else if (role === 'District Officer') name = "District Protection Off. R. Patil";
     else if (role === 'Welfare Officer') name = "Social Welfare Off. N. Rao";
     else if (role === 'Authorized Administrator') name = "System Administrator (Master Access)";
     setUserName(name);
     addToast(`Switched role to ${role}`, 'info');
     addAuditLog('Role Switch', `User context updated to ${role}`);
+    if (role === 'Patient / Complainant') {
+      setActivePage('user-meeting');
+    }
+  };
+
+  // Request new Counselling Session (Invoked by Patient/Victim)
+  const requestCounsellorSession = (caseData = null) => {
+    const targetCase = caseData || currentCase || {};
+    const newSessionId = `COUNSELLOR-ROOM-${Math.floor(100000 + Math.random() * 900000)}`;
+    
+    const newRequest = {
+      sessionId: newSessionId,
+      caseId: targetCase.id || 'LIVE-REQ',
+      patientName: targetCase.victimSpeaker || 'Live Complainant',
+      language: targetCase.language || 'Assamese',
+      svi: targetCase.svi || 75,
+      riskCategory: targetCase.riskCategory || 'HIGH',
+      requestTime: 'Just now',
+      status: 'Waiting for Counsellor',
+      narrative: targetCase.victimNarrative || targetCase.translatedText || 'Victim requested confidential counselling session.'
+    };
+
+    setCounsellingQueue(prev => [newRequest, ...prev.filter(c => c.sessionId !== newSessionId)]);
+    setActiveCounsellingSession(newRequest);
+    addToast(`Counselling request created (${newSessionId}). Added to Counsellor Queue.`, 'success');
+    addAuditLog('Counselling Requested', `Case ${newRequest.caseId} queued for Counsellor session ${newSessionId}.`);
+    setActivePage('counsellor-session');
+  };
+
+  // Join Counselling Session (Invoked by Counsellor from Queue)
+  const joinCounsellingSession = (sessionItem) => {
+    // Update session status in queue to 'In Session'
+    setCounsellingQueue(prev => prev.map(item => {
+      if (item.sessionId === sessionItem.sessionId) {
+        return { ...item, status: 'In Session' };
+      }
+      return item;
+    }));
+
+    const updatedSession = { ...sessionItem, status: 'In Session' };
+    setActiveCounsellingSession(updatedSession);
+    addToast(`Counsellor joined WebRTC Room ${sessionItem.sessionId}`, 'success');
+    addAuditLog('Counsellor Joined Session', `Dr. S. Sharma joined session ${sessionItem.sessionId} for Case ${sessionItem.caseId}.`);
+    setActivePage('counsellor-session');
+  };
+
+  // End Counselling Session
+  const endCounsellingSession = (sessionId) => {
+    if (sessionId) {
+      setCounsellingQueue(prev => prev.map(item => {
+        if (item.sessionId === sessionId) {
+          return { ...item, status: 'Completed' };
+        }
+        return item;
+      }));
+    }
+    setActiveCounsellingSession(null);
+    addToast('Counselling session ended.', 'info');
   };
 
   // Run Guided 2-3 Minute SIH Demo
@@ -152,6 +238,9 @@ export const AppProvider = ({ children }) => {
       accessibility, setAccessibility,
       selectedLanguage, setSelectedLanguage,
       isSahayAssistOpen, setIsSahayAssistOpen,
+      counsellingQueue, setCounsellingQueue,
+      activeCounsellingSession, setActiveCounsellingSession,
+      requestCounsellorSession, joinCounsellingSession, endCounsellingSession,
       consent, setConsent,
       isSihDemoRunning, sihDemoStep, startSihGuidedDemo, stopSihGuidedDemo,
       toasts, addToast

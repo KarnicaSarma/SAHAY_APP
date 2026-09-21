@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { querySahayAssistant } from '../../services/aiAssistant';
+import { queryGroqChatbot } from '../../services/apiClient';
 import { Sparkles, X, Send, HelpCircle, ShieldAlert } from 'lucide-react';
 
 export const SahayAssistDrawer = () => {
@@ -16,7 +17,7 @@ export const SahayAssistDrawer = () => {
 
   if (!isSahayAssistOpen) return null;
 
-  const handleSend = (textToSend) => {
+  const handleSend = async (textToSend) => {
     const queryText = textToSend || input;
     if (!queryText.trim()) return;
 
@@ -24,10 +25,18 @@ export const SahayAssistDrawer = () => {
     setMessages(newMessages);
     setInput('');
 
-    setTimeout(() => {
-      const response = querySahayAssistant(queryText, currentCase);
-      setMessages([...newMessages, { sender: 'bot', text: response.text, type: response.type }]);
-    }, 400);
+    try {
+      const groqRes = await queryGroqChatbot(queryText, currentCase);
+      if (groqRes && groqRes.text) {
+        setMessages([...newMessages, { sender: 'bot', text: groqRes.text, type: groqRes.type || 'assistant' }]);
+        return;
+      }
+    } catch (e) {
+      console.warn('Groq Chatbot notice:', e);
+    }
+
+    const response = querySahayAssistant(queryText, currentCase);
+    setMessages([...newMessages, { sender: 'bot', text: response.text, type: response.type }]);
   };
 
   const sampleQueries = [

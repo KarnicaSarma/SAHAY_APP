@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   LayoutDashboard, Radio, FolderKanban, Clock, BarChart3, Scale, ShieldCheck,
-  FileSpreadsheet, HeartHandshake, Settings, Info, Home, UserCheck, Sparkles, Trees
+  FileSpreadsheet, HeartHandshake, Settings, Info, Home, UserCheck, Sparkles, Trees, Video
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -21,6 +21,8 @@ export const Sidebar = () => {
     {
       title: 'Clinical & Support',
       items: [
+        { id: 'user-meeting', label: 'My Counsellor Call', icon: Video, badge: 'User Call', roles: ['Patient / Complainant', 'NHAA Officer', 'Counsellor', 'Authorized Administrator'] },
+        { id: 'counselling-queue', label: 'Counselling Queue', icon: Video, badge: 'Live Calls', roles: ['Counsellor', 'NHAA Officer', 'Authorized Administrator'] },
         { id: 'timeline', label: 'Follow-up Timeline', icon: Clock, roles: ['NHAA Officer', 'Counsellor', 'Welfare Officer', 'Authorized Administrator'] },
         { id: 'wellbeing', label: 'Well-being Explorer', icon: Trees, roles: ['All'] },
         { id: 'victim', label: 'Emergency Portal', icon: HeartHandshake, roles: ['All'] },
@@ -50,7 +52,11 @@ export const Sidebar = () => {
             </div>
 
             {section.items.map((item) => {
-              const isAllowed = item.roles.includes('All') || item.roles.includes(userRole);
+              // Strict scoping for Patient / Complainant role
+              let isAllowed = item.roles.includes('All') || item.roles.includes(userRole);
+              if (userRole === 'Patient / Complainant') {
+                isAllowed = ['user-meeting', 'wellbeing', 'victim', 'landing', 'about'].includes(item.id);
+              }
               const Icon = item.icon;
               const isActive = activePage === item.id;
 

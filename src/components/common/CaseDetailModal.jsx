@@ -62,7 +62,7 @@ export const CaseDetailModal = ({ selectedCase, isOpen, onClose, onHumanDecision
               <AlertTriangle className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <div className="font-bold text-sm text-red-900 uppercase tracking-wide flex items-center gap-2">
-                  <span>🔴 IMMEDIATE SAFETY FLAG DETECTED</span>
+                  <span>IMMEDIATE SAFETY FLAG DETECTED</span>
                   <span className="text-[10px] bg-red-700 text-white px-2 py-0.5 rounded font-mono">
                     Priority Review
                   </span>

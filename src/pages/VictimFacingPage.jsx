@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { HeartHandshake, PhoneCall, Volume2, EyeOff, Shield, LogOut, Check } from 'lucide-react';
 
 export const VictimFacingPage = () => {
-  const { setActivePage, setIsDiscreetMode, addToast } = useApp();
+  const { setActivePage, setIsDiscreetMode, addToast, requestCounsellorSession } = useApp();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
 
@@ -16,6 +16,16 @@ export const VictimFacingPage = () => {
   const handleVictimAction = (actionText) => {
     setSelectedAction(actionText);
     addToast(`Support Request Triggered: "${actionText}". Connecting to helpline...`, "success");
+    if (actionText === "I Want to Speak to a Counsellor") {
+      requestCounsellorSession({
+        id: 'EMERGENCY-01',
+        victimSpeaker: 'Emergency Portal User',
+        language: 'Hindi',
+        svi: 80,
+        riskCategory: 'CRITICAL',
+        victimNarrative: 'User requested immediate confidential counsellor session from Emergency Support Portal.'
+      });
+    }
   };
 
   return (

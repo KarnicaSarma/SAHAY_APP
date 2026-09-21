@@ -22,6 +22,9 @@ import { VictimFacingPage } from './pages/VictimFacingPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AboutPage } from './pages/AboutPage';
 import { WellbeingExplorer } from './pages/WellbeingExplorer';
+import { CounsellorSessionPage } from './pages/CounsellorSessionPage';
+import { CounsellingQueuePage } from './pages/CounsellingQueuePage';
+import { UserMeetingPortalPage } from './pages/UserMeetingPortalPage';
 
 const AppContent = () => {
   const { activePage, setActivePage, isDiscreetMode, accessibility } = useApp();
@@ -51,6 +54,13 @@ const AppContent = () => {
       case 'assessment':
       case 'live-assessment':
         return <LiveAssessmentPage />;
+      case 'user-meeting':
+        return <UserMeetingPortalPage />;
+      case 'counselling-queue':
+        return <CounsellingQueuePage />;
+      case 'counsellor-session':
+      case 'counsellor':
+        return <CounsellorSessionPage />;
       case 'cases':
       case 'case-management':
         return <CaseManagementPage />;

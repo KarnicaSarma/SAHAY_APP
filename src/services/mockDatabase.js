@@ -950,7 +950,7 @@ export const DEMO_CASES = {
     dataQuality: "Good",
     humanReviewStatus: "Required",
     immediateSafetyFlag: true,
-    immediateSafetyMessage: "🔴 CRITICAL IMMEDIATE SAFETY FLAG: Armed threat outside residence. Priority officer verification required.",
+    immediateSafetyMessage: "CRITICAL IMMEDIATE SAFETY FLAG: Armed threat outside residence. Priority officer verification required.",
     supportRecommendations: [
       { title: "Priority Human Verification & Security Dispatch", priority: "Critical", assigned: "Officer K. Sundaram", status: "Emergency Review" },
       { title: "District Emergency Response Cell", priority: "Critical", assigned: "Emergency Response Unit", status: "Active" }

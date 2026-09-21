@@ -1,7 +1,130 @@
 // SAHAY Well-being Explorer — Local Multi-State Peaceful Location Dataset
+// Embedded with real latitude & longitude coordinates for Leaflet map view
 
 export const WELLBEING_LOCATIONS = [
-  // ASSAM (Guwahati & regional)
+  // DELHI (New City Scope)
+  {
+    id: "LOC-DEL-001",
+    state: "Delhi",
+    city: "Delhi",
+    name: "Lodhi Gardens & Heritage Park",
+    nativeNames: {
+      Hindi: "लोधी गार्डन",
+      Punjabi: "ਲੋਧੀ ਗਾਰਡਨ"
+    },
+    address: "Lodhi Road, Khan Market, New Delhi, Delhi 110003",
+    latitude: 28.5931,
+    longitude: 77.2197,
+    categories: ["Nature", "Parks", "Quiet Spaces", "Culture"],
+    bestFor: ["Nature", "Walking", "Quiet time"],
+    distance: "1.5 km from Khan Market Metro",
+    whySuitable: "Sprawling 90-acre historic park with shaded walking tracks, lotus ponds, ancient monuments, and expansive green lawns.",
+    hours: "6:00 AM – 7:30 PM Daily",
+    accessibility: "Flat paved walking loops, wheelchair access ramps, public benches throughout",
+    isDemoData: true
+  },
+  {
+    id: "LOC-DEL-002",
+    state: "Delhi",
+    city: "Delhi",
+    name: "Sunder Nursery Heritage Park",
+    nativeNames: {
+      Hindi: "सुंदर नर्सरी",
+      Punjabi: "ਸੁੰਦਰ ਨਰਸਰੀ"
+    },
+    address: "Opposite Humayun Tomb, Nizamuddin, New Delhi, Delhi 110013",
+    latitude: 28.5901,
+    longitude: 77.2483,
+    categories: ["Nature", "Parks", "Quiet Spaces", "Wellness"],
+    bestFor: ["Nature", "Quiet time", "Scenic"],
+    distance: "0.8 km from Nizamuddin Station",
+    whySuitable: "Restored 90-acre UNESCO heritage park featuring botanical micro-forests, peaceful water channels, and quiet shaded pavilions.",
+    hours: "7:00 AM – 7:00 PM Daily",
+    accessibility: "Wheelchair accessible paved paths, designated quiet zones, visitor amenities",
+    isDemoData: true
+  },
+  {
+    id: "LOC-DEL-003",
+    state: "Delhi",
+    city: "Delhi",
+    name: "Nehru Park & Chanakyapuri Green Belt",
+    nativeNames: {
+      Hindi: "नेहरू पार्क चाणक्यपुरी",
+      Punjabi: "ਨੇਹਰੂ ਪਾਰਕ"
+    },
+    address: "Vinay Marg, Chanakyapuri, New Delhi, Delhi 110021",
+    latitude: 28.5862,
+    longitude: 77.1953,
+    categories: ["Parks", "Nature", "Quiet Spaces", "Wellness"],
+    bestFor: ["Walking", "Quiet time", "Nature"],
+    distance: "2.0 km from Lok Kalyan Marg Metro",
+    whySuitable: "Expansive 80-acre landscaped park in diplomatic zone with tranquil walking trails and quiet shaded seating.",
+    hours: "5:00 AM – 8:00 PM Daily",
+    accessibility: "Paved circular walking track, grassy knolls, accessible parking",
+    isDemoData: true
+  },
+  {
+    id: "LOC-DEL-004",
+    state: "Delhi",
+    city: "Delhi",
+    name: "India Habitat Centre Courtyards",
+    nativeNames: {
+      Hindi: "इण्डिया हैबिटैट सेंटर",
+      Punjabi: "ਇੰਡੀਆ ਹੈਬੀਟੇਟ ਸੈਂਟਰ"
+    },
+    address: "Lodhi Road, Near Air Force Bal Bharati School, New Delhi, Delhi 110003",
+    latitude: 28.5894,
+    longitude: 77.2248,
+    categories: ["Culture", "Quiet Spaces", "Community"],
+    bestFor: ["Quiet time", "Personal time", "Culture"],
+    distance: "0.5 km from Lodhi Garden",
+    whySuitable: "Serene open-air architectural courtyards with art galleries, shade canopy screens, and quiet seating niches.",
+    hours: "10:00 AM – 8:00 PM Daily",
+    accessibility: "Ramp and elevator access throughout galleries and courtyards",
+    isDemoData: true
+  },
+  {
+    id: "LOC-DEL-005",
+    state: "Delhi",
+    city: "Delhi",
+    name: "Garden of Five Senses",
+    nativeNames: {
+      Hindi: "ज्ञान एवं पांच इंद्रिय उद्यान",
+      Punjabi: "ਗਾਰਡਨ ਆਫ਼ ਫਾਈਵ ਸੈਂਸਿਸ"
+    },
+    address: "Westend Marg, Saidul Ajaib, Saket, New Delhi, Delhi 110030",
+    latitude: 28.5132,
+    longitude: 77.1979,
+    categories: ["Nature", "Parks", "Wellness", "Quiet Spaces"],
+    bestFor: ["Nature", "Scenic", "Quiet time"],
+    distance: "1.0 km from Saket Metro",
+    whySuitable: "Specially designed 20-acre sensory garden with bamboo paths, solar energy park, and tranquil rock gardens.",
+    hours: "9:00 AM – 6:00 PM Daily",
+    accessibility: "Stepped and stone paved paths, shaded pavilions",
+    isDemoData: true
+  },
+  {
+    id: "LOC-DEL-006",
+    state: "Delhi",
+    city: "Delhi",
+    name: "Hauz Khas Deer Park & Lake Walk",
+    nativeNames: {
+      Hindi: "हौज खास डियर पार्क",
+      Punjabi: "ਹੌਜ਼ ਖਾਸ ਡੀਅਰ ਪਾਰਕ"
+    },
+    address: "Hauz Khas Enclave, New Delhi, Delhi 110016",
+    latitude: 28.5528,
+    longitude: 77.1947,
+    categories: ["Nature", "Parks", "Quiet Spaces", "Community"],
+    bestFor: ["Nature", "Walking", "Animals"],
+    distance: "1.2 km from IIT Metro",
+    whySuitable: "Green forest cover with deer enclosure, duck lake perimeter, and peaceful earthen walking trails.",
+    hours: "5:00 AM – 7:30 PM Daily",
+    accessibility: "Paved perimeter path, shaded wooden benches",
+    isDemoData: true
+  },
+
+  // ASSAM (Guwahati)
   {
     id: "LOC-ASSAM-001",
     state: "Assam",
@@ -12,14 +135,13 @@ export const WELLBEING_LOCATIONS = [
       Hindi: "असम राज्य प्राणी उद्यान एवं वनस्पति उद्यान",
       Bengali: "আসাম রাজ্য চিড়িয়াখানা ও উদ্ভিদ উদ্যান"
     },
-    categories: ["Nature", "Walking", "Animals", "Garden/Park"],
+    address: "RG Baruah Road, Sundarpur, Guwahati, Assam 781005",
+    latitude: 26.1602,
+    longitude: 91.7825,
+    categories: ["Nature", "Parks", "Wellness"],
     bestFor: ["Nature", "Animals", "Walking"],
     distance: "2.4 km from city center",
     whySuitable: "Suitable for spending relaxed outdoor time surrounded by lush natural greenery and animal habitats.",
-    nativeWhySuitable: {
-      Assamese: "প্ৰাকৃতিক সেউজীয়া আৰু জীৱ-জন্তুৰ পৰিৱেশৰ মাজত আৰামদায়ক সময় কটোৱাৰ বাবে উপযোগী।",
-      Hindi: "प्राकृतिक हरियाली और वन्यजीवों के बीच शांत समय बिताने के लिए उपयुक्त।"
-    },
     hours: "8:00 AM – 4:30 PM (Closed Fridays)",
     accessibility: "Wheelchair accessible pathways, shaded benches & drinking water available",
     isDemoData: true
@@ -34,14 +156,13 @@ export const WELLBEING_LOCATIONS = [
       Hindi: "दीघलीपुखुरी पार्क",
       Bengali: "দীঘলীপুকুর উদ্যান"
     },
-    categories: ["Nature", "Walking", "Quiet place", "Scenic place"],
+    address: "Dighalipukhuri East Bank, Dighalipukhuri, Guwahati, Assam 781001",
+    latitude: 26.1884,
+    longitude: 91.7516,
+    categories: ["Parks", "Nature", "Quiet Spaces"],
     bestFor: ["Walking", "Quiet time", "Scenic"],
     distance: "1.1 km",
     whySuitable: "Historic water body with paved walking trails, tall shade trees, and quiet seating benches.",
-    nativeWhySuitable: {
-      Assamese: "খোজ কঢ়া পথ, ওখ গছৰ ছাঁ আৰু শান্ত বহাৰ ব্যৱস্থাৰে পুষ্ট ঐতিহাসিক জলাশয়।",
-      Hindi: "पैदल चलने के रास्ते और घने पेड़ों की छांव वाला शांत ऐतिहासिक जलाशय।"
-    },
     hours: "6:00 AM – 8:00 PM Daily",
     accessibility: "Flat paved walking path, rest pavilions",
     isDemoData: true
@@ -55,14 +176,13 @@ export const WELLBEING_LOCATIONS = [
       Assamese: "দীপৰ বিল পক্ষী অভয়াৰণ্য",
       Hindi: "दीपर बील पक्षी अभयारण्य"
     },
-    categories: ["Nature", "Scenic place", "Animals", "Quiet place"],
+    address: "Deepor Beel, Rani Khamar, Guwahati, Assam 781017",
+    latitude: 26.1264,
+    longitude: 91.6575,
+    categories: ["Nature", "Quiet Spaces"],
     bestFor: ["Nature", "Scenic", "Animals"],
     distance: "8.5 km",
     whySuitable: "Expansive natural wetland area suitable for watching migratory birds and taking peaceful walks in nature.",
-    nativeWhySuitable: {
-      Assamese: "পৰিভ্ৰমী চৰাই চোৱা আৰু প্ৰকৃতিৰ মাজত শান্ত সময় কটোৱাৰ বাবে উৎকৃষ্ট বিল।",
-      Hindi: "प्रवासी पक्षियों को देखने और प्रकृति के शांत माहौल में समय बिताने के लिए उपयुक्त।"
-    },
     hours: "6:00 AM – 5:00 PM Daily",
     accessibility: "Natural trails, watchtower access",
     isDemoData: true
@@ -76,20 +196,19 @@ export const WELLBEING_LOCATIONS = [
       Assamese: "বশিষ্ট আশ্ৰম প্ৰাকৃতিক পৰিৱেশ",
       Hindi: "वशिष्ठ आश्रम प्राकृतिक परिसर"
     },
-    categories: ["Nature", "Quiet place", "Scenic place"],
+    address: "Basistha Temple Road, Basistha, Guwahati, Assam 781029",
+    latitude: 26.0967,
+    longitude: 91.7876,
+    categories: ["Quiet Spaces", "Nature", "Culture"],
     bestFor: ["Quiet time", "Nature"],
     distance: "11 km",
     whySuitable: "Peaceful mountain stream surroundings with gentle running water and dense green hillside cover.",
-    nativeWhySuitable: {
-      Assamese: "পাহাৰীয়া জান আৰু সেউজীয়া পাহাৰৰ কাষৰ অতি শান্ত পৰিৱেশ।",
-      Hindi: "पहाड़ी झरने और घनी हरियाली के बीच अत्यंत शांत और सुरम्य वातावरण।"
-    },
     hours: "6:00 AM – 6:00 PM",
     accessibility: "Step access to stream, stone pathways",
     isDemoData: true
   },
 
-  // KARNATAKA (Bengaluru, Mysuru)
+  // KARNATAKA (Bengaluru)
   {
     id: "LOC-KAR-001",
     state: "Karnataka",
@@ -97,17 +216,15 @@ export const WELLBEING_LOCATIONS = [
     name: "Cubbon Park",
     nativeNames: {
       Kannada: "ಕಬ್ಬನ್ ಪಾರ್ಕ್",
-      Hindi: "कब्बन पार्क",
-      Tamil: "கப்பல் பார்க்"
+      Hindi: "कब्बन पार्क"
     },
-    categories: ["Nature", "Walking", "Quiet place", "Garden/Park", "Personal time"],
+    address: "Kasturba Road, Sampangi Rama Nagara, Bengaluru, Karnataka 560001",
+    latitude: 12.9763,
+    longitude: 77.5929,
+    categories: ["Parks", "Nature", "Quiet Spaces", "Wellness"],
     bestFor: ["Nature", "Walking", "Quiet time"],
     distance: "1.8 km",
     whySuitable: "Sprawling 300-acre green public park with bamboo groves, shaded avenues, and pedestrian-only walking zones.",
-    nativeWhySuitable: {
-      Kannada: "ಬಿದಿರಿನ ನೆರಳು, ಹಸಿರು ಹಾದಿಗಳು ಮತ್ತು ಪ್ರಶಾಂತ ನಡಿಗೆಗೆ ಸೂಕ್ತವಾದ 300 ಎಕರೆ ಬೃಹತ್ ಉದ್ಯಾನವನ.",
-      Hindi: "बांस के बगीचों और घने पेड़ों की छांव वाला 300 एकड़ का हरा-भरा विशाल पार्क।"
-    },
     hours: "6:00 AM – 7:00 PM (Vehicles banned Sun & Holidays)",
     accessibility: "Smooth paved roads, ramp access, multiple seating benches",
     isDemoData: true
@@ -121,14 +238,13 @@ export const WELLBEING_LOCATIONS = [
       Kannada: "ಲಾಲ್ ಬಾಗ್ ಸಸ್ಯಶಾಸ್ತ್ರೀಯ ಉದ್ಯಾನವನ",
       Hindi: "लालबाग वनस्पति उद्यान"
     },
-    categories: ["Nature", "Walking", "Scenic place", "Garden/Park"],
+    address: "Mavalli, Bengaluru, Karnataka 560004",
+    latitude: 12.9507,
+    longitude: 77.5848,
+    categories: ["Nature", "Parks", "Culture"],
     bestFor: ["Nature", "Walking", "Scenic"],
     distance: "3.5 km",
     whySuitable: "Centuries-old botanical sanctuary with a serene glasshouse, lake walk, and century-old rare trees.",
-    nativeWhySuitable: {
-      Kannada: "ಶಾಂತವಾದ ಕೆರೆ ಹಾದಿ, ಅಪರೂಪದ ಮರಗಳು ಮತ್ತು ಸೌಂದರ್ಯಯುತ ಗ್ಲಾಸ್‌ಹೌಸ್ ಹೊಂದಿರುವ ಹಸಿರು ಮಡಿಲು.",
-      Hindi: "शांत झील, दुर्लभ पेड़ और ऐतिहासिक ग्लासहाउस वाला प्रसिद्ध वनस्पति उद्यान।"
-    },
     hours: "6:00 AM – 7:00 PM Daily",
     accessibility: "Wheelchair friendly main loops, battery buggies available",
     isDemoData: true
@@ -137,46 +253,24 @@ export const WELLBEING_LOCATIONS = [
     id: "LOC-KAR-003",
     state: "Karnataka",
     city: "Bengaluru",
-    name: "Bannerghatta Biological Park (Butterflies & Green Zone)",
-    nativeNames: {
-      Kannada: "ಬನ್ನೇರುಘಟ್ಟ ಜೈವಿಕ ಉದ್ಯಾನವನ",
-      Hindi: "बन्नेरघट्टा जैविक उद्यान"
-    },
-    categories: ["Nature", "Animals", "Walking", "Garden/Park"],
-    bestFor: ["Animals", "Nature", "Walking"],
-    distance: "18 km",
-    whySuitable: "Dedicated butterfly park dome, zoo enclosures, and forest trail perimeter.",
-    nativeWhySuitable: {
-      Kannada: "ಚಿಟ್ಟೆಗಳ ಉದ್ಯಾನವನ, ಮೃಗಾಲಯ ಮತ್ತು ಕಾಡಿನ ಅಂಚಿನಲ್ಲಿ ಪ್ರಕೃತಿಯ ಒಡನಾಟ.",
-      Hindi: "तितली पार्क, चिड़ियाघर और प्राकृतिक जंगल के वातावरण में समय बिताने के लिए उपयुक्त।"
-    },
-    hours: "9:00 AM – 5:00 PM (Closed Tuesdays)",
-    accessibility: "Paved main pathways, shade structures",
-    isDemoData: true
-  },
-  {
-    id: "LOC-KAR-004",
-    state: "Karnataka",
-    city: "Bengaluru",
     name: "Sankey Tank Lakeside Walk",
     nativeNames: {
       Kannada: "ಸಾಂಕಿ ಕೆರೆ ನಡಿಗೆ ಮಾರ್ಗ",
       Hindi: "सांकी टैंक झील मार्ग"
     },
-    categories: ["Walking", "Scenic place", "Quiet place"],
+    address: "Sadashiva Nagar, Kodandarampura, Bengaluru, Karnataka 560080",
+    latitude: 13.0076,
+    longitude: 77.5728,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Walking", "Scenic", "Quiet time"],
     distance: "4.2 km",
     whySuitable: "Landscaped lake perimeter with dedicated walking track, duck pond, and sunset views.",
-    nativeWhySuitable: {
-      Kannada: "ಸುಂದರ ಕೆರೆಯ ಸುತ್ತಲೂ ಸಾಗುವ ಸುಸಜ್ಜಿತ ನಡಿಗೆ ಪಥ ಮತ್ತು ಸೂರ್ಯಾಸ್ತದ ವೀಕ್ಷಣೆ.",
-      Hindi: "झील के चारों ओर सुंदर पैदल मार्ग और शांत शाम बिताने का वातावरण।"
-    },
     hours: "6:00 AM – 10:00 AM & 4:00 PM – 8:00 PM",
     accessibility: "Continuous paved walkway with handrails",
     isDemoData: true
   },
 
-  // KERALA (Kochi, Thiruvananthapuram)
+  // KERALA (Kochi)
   {
     id: "LOC-KER-001",
     state: "Kerala",
@@ -186,14 +280,13 @@ export const WELLBEING_LOCATIONS = [
       Malayalam: "സുഭാഷ് ബോസ് പാർക്ക് & മറൈൻ ഡ്രൈവ്",
       Hindi: "सुभाष बोस पार्क एवं मरीन ड्राइव"
     },
-    categories: ["Nature", "Walking", "Scenic place", "Quiet place"],
+    address: "Park Avenue, Marine Drive, Ernakulam, Kochi, Kerala 682011",
+    latitude: 9.9722,
+    longitude: 76.2778,
+    categories: ["Parks", "Nature", "Quiet Spaces"],
     bestFor: ["Scenic", "Walking", "Quiet time"],
     distance: "1.2 km",
-    whySuitable: " Waterfront promenade with sea breeze, musical fountains, green lawns, and backwater views.",
-    nativeWhySuitable: {
-      Malayalam: "കടൽക്കാറ്റും കായൽക്കാഴ്ചകളും നിറഞ്ഞ പ്രശാന്തമായ പാർക്കും നടപ്പാതയും.",
-      Hindi: "समुद्री हवा और शांत बैकवाटर के सुंदर दृश्यों वाला पार्क और पैदल मार्ग।"
-    },
+    whySuitable: "Waterfront promenade with sea breeze, green lawns, and quiet backwater views.",
     hours: "6:00 AM – 9:00 PM Daily",
     accessibility: "Flat paved promenade, ample seating facing water",
     isDemoData: true
@@ -207,20 +300,19 @@ export const WELLBEING_LOCATIONS = [
       Malayalam: "ഫോർട്ട് കൊച്ചി ബീച്ച് ഫ്രണ്ട്",
       Hindi: "फोर्ट कोच्चि बीच क्षेत्र"
     },
-    categories: ["Nature", "Walking", "Scenic place", "Personal time"],
+    address: "Tower Road, Fort Kochi, Kochi, Kerala 682001",
+    latitude: 9.9657,
+    longitude: 76.2427,
+    categories: ["Nature", "Culture", "Quiet Spaces"],
     bestFor: ["Walking", "Scenic", "Personal time"],
     distance: "9.5 km",
     whySuitable: "Shaded walkway under rain trees, historic Chinese fishing nets, and calm ocean breeze.",
-    nativeWhySuitable: {
-      Malayalam: "മരത്തണലുള്ള നടപ്പാതയും ചീനവലകളും കടൽക്കാറ്റും നിറഞ്ഞ ശാന്തമായ അന്തരീക്ഷം.",
-      Hindi: "छायादार पेड़ों के नीचे पैदल मार्ग और शांत समुद्री हवा।"
-    },
     hours: "Open 24/7",
     accessibility: "Paved beach road, public benches",
     isDemoData: true
   },
 
-  // TAMIL NADU (Chennai, Coimbatore)
+  // TAMIL NADU (Chennai)
   {
     id: "LOC-TN-001",
     state: "Tamil Nadu",
@@ -230,14 +322,13 @@ export const WELLBEING_LOCATIONS = [
       Tamil: "செம்மொழிப் பூங்கா தாவரவியல் பூங்கா",
       Hindi: "செம்மொழி பூங்கா वनस्पति उद्यान"
     },
-    categories: ["Nature", "Walking", "Garden/Park", "Quiet place"],
+    address: "Cathedral Road, Teynampet, Chennai, Tamil Nadu 600086",
+    latitude: 13.0489,
+    longitude: 80.2526,
+    categories: ["Nature", "Parks", "Wellness"],
     bestFor: ["Nature", "Quiet time", "Walking"],
     distance: "2.1 km",
     whySuitable: "Lush 20-acre botanical garden with medicinal plant sections, duck pond, and shaded green walkways.",
-    nativeWhySuitable: {
-      Tamil: "அமைதியான சூழ்நிலை, மூலிகைத் தோட்டங்கள் மற்றும் பசுமையான நடைபாதைகள் கொண்ட பூங்கா.",
-      Hindi: "शांत वातावरण, औषधीय पौधे और घने पेड़ों की छांव वाला पार्क।"
-    },
     hours: "6:00 AM – 8:00 PM (Closed Tuesdays)",
     accessibility: "Wheelchair ramps, wide paved paths",
     isDemoData: true
@@ -251,20 +342,19 @@ export const WELLBEING_LOCATIONS = [
       Tamil: "கிண்டி தேசிய பூங்கா",
       Hindi: "गिंडी राष्ट्रीय उद्यान"
     },
-    categories: ["Nature", "Animals", "Walking"],
+    address: "Rangoon Street, Guindy, Chennai, Tamil Nadu 600022",
+    latitude: 13.0067,
+    longitude: 80.2206,
+    categories: ["Nature", "Parks"],
     bestFor: ["Nature", "Animals", "Walking"],
     distance: "7.8 km",
-    whySuitable: "Protected dry evergreen forest in heart of city with spotted deer, blackbucks, and shaded forest trails.",
-    nativeWhySuitable: {
-      Tamil: "மான்கள் மற்றும் இயற்கை வனப்பகுதியுடன் கூடிய அமைதியான இயற்கை பூங்கா.",
-      Hindi: "प्राकृतिक हिरणों और घने जंगल के वातावरण में समय बिताने की जगह।"
-    },
+    whySuitable: "Protected dry evergreen forest in heart of city with spotted deer and shaded forest trails.",
     hours: "9:00 AM – 5:30 PM (Closed Tuesdays)",
     accessibility: "Paved walking paths, shaded rest huts",
     isDemoData: true
   },
 
-  // TELANGANA & ANDHRA (Hyderabad, Vizag)
+  // TELANGANA (Hyderabad)
   {
     id: "LOC-TEL-001",
     state: "Telangana",
@@ -274,18 +364,19 @@ export const WELLBEING_LOCATIONS = [
       Telugu: "కాసు బ్రహ్మానందరెడ్డి జాతీయ పార్కు (KBR పార్కు)",
       Hindi: "केबीआर राष्ट्रीय उद्यान"
     },
-    categories: ["Nature", "Walking", "Quiet place"],
+    address: "Road No. 2, Jubilee Hills, Hyderabad, Telangana 500034",
+    latitude: 17.4239,
+    longitude: 78.4184,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Nature", "Walking", "Quiet time"],
     distance: "3.8 km",
     whySuitable: "Extensive urban national park with dedicated 5 km outer walking ring and peacock sightings.",
-    nativeWhySuitable: {
-      Telugu: "నెమళ్లు మరియు దట్టమైన చెట్లతో కూడిన ప్రశాంతమైన 5 కిమీ నడక మార్గం.",
-      Hindi: "मोरों और घने पेड़ों के बीच 5 किमी लंबा शांत पैदल मार्ग।"
-    },
     hours: "5:30 AM – 10:00 AM & 4:00 PM – 6:30 PM",
     accessibility: "Paved outer walkway, seating benches",
     isDemoData: true
   },
+
+  // ANDHRA PRADESH (Visakhapatnam)
   {
     id: "LOC-AP-001",
     state: "Andhra Pradesh",
@@ -295,14 +386,13 @@ export const WELLBEING_LOCATIONS = [
       Telugu: "ఆర్కే బీచ్ రోడ్ నడక మార్గం",
       Hindi: "आरके बीच मार्ग"
     },
-    categories: ["Nature", "Walking", "Scenic place"],
+    address: "Beach Road, Pandurangapuram, Visakhapatnam, Andhra Pradesh 530002",
+    latitude: 17.7126,
+    longitude: 83.3175,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Scenic", "Walking"],
     distance: "1.5 km",
     whySuitable: "Clean seaside promenade with coastal ocean view, landscaped gardens, and morning walking track.",
-    nativeWhySuitable: {
-      Telugu: "సముద్రపు గాలి మరియు సుందరమైన సముద్ర తీర నడక మార్గం.",
-      Hindi: "ताज़ी समुद्री हवा और सुंदर तटीय पैदल मार्ग।"
-    },
     hours: "Open 24/7",
     accessibility: "Wide paved promenade, well-lit pathways",
     isDemoData: true
@@ -318,37 +408,35 @@ export const WELLBEING_LOCATIONS = [
       Bengali: "রবীন্দ্র সরোবর লেক ও উদ্যান",
       Hindi: "रवींद्र सरोवर झील"
     },
-    categories: ["Nature", "Walking", "Quiet place", "Scenic place"],
+    address: "Southern Avenue, Dhakuria, Kolkata, West Bengal 700029",
+    latitude: 22.5126,
+    longitude: 88.3636,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Nature", "Walking", "Quiet time"],
     distance: "2.8 km",
     whySuitable: "Artificial lake surrounded by ancient mahogany and banyan trees, ideal for quiet contemplative walks.",
-    nativeWhySuitable: {
-      Bengali: "বিশাল লেক এবং প্রাচীন গাছের ছায়ায় ঘেরা অত্যন্ত শান্ত হাঁটার জায়গা।",
-      Hindi: "विशाल झील और घने पेड़ों की छांव वाला शांत टहलने का स्थान।"
-    },
     hours: "5:00 AM – 7:00 PM Daily",
     accessibility: "Paved perimeter path, lakeside benches",
     isDemoData: true
   },
 
-  // MAHARASHTRA (Mumbai, Pune)
+  // MAHARASHTRA (Mumbai)
   {
     id: "LOC-MAH-001",
     state: "Maharashtra",
     city: "Mumbai",
-    name: "Sanjay Gandhi National Park (Kanheri Trail & Nature Area)",
+    name: "Sanjay Gandhi National Park Area",
     nativeNames: {
       Marathi: "संजय गांधी राष्ट्रीय उद्यान",
       Hindi: "संजय गांधी राष्ट्रीय उद्यान"
     },
-    categories: ["Nature", "Walking", "Scenic place", "Animals"],
+    address: "Borivali East, Mumbai, Maharashtra 400066",
+    latitude: 19.2312,
+    longitude: 72.8624,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Nature", "Walking", "Animals"],
     distance: "12 km",
     whySuitable: "Vast forest park within metropolitan limits with green canopy, stream walk, and deer sightings.",
-    nativeWhySuitable: {
-      Marathi: "हिरवागार निसर्ग, शांत रस्ते आणि निसर्गाच्या सानिध्यात वेळ घालवण्यासाठी उत्तम ठिकाण.",
-      Hindi: "घने जंगल, शांत सड़कें और प्राकृतिक माहौल में समय बिताने के लिए उत्तम।"
-    },
     hours: "7:30 AM – 6:30 PM (Closed Mondays)",
     accessibility: "Paved main road, electric vehicle safari option",
     isDemoData: true
@@ -359,19 +447,18 @@ export const WELLBEING_LOCATIONS = [
     id: "LOC-ODI-001",
     state: "Odisha",
     city: "Bhubaneswar",
-    name: "Ekamra Kanan Botanical Gardens & Regional Plant Resource Centre",
+    name: "Ekamra Kanan Botanical Gardens",
     nativeNames: {
       Odia: "ଏକାମ୍ର କାନନ ଉଦ୍ଭିଦ ଉଦ୍ୟାନ",
       Hindi: "एकाम्र कानन वनस्पति उद्यान"
     },
-    categories: ["Nature", "Walking", "Garden/Park", "Quiet place"],
+    address: "IRC Village, Nayapalli, Bhubaneswar, Odisha 751015",
+    latitude: 20.2974,
+    longitude: 85.8086,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Nature", "Quiet time", "Walking"],
     distance: "3.1 km",
     whySuitable: "500-acre botanical park featuring a large lake, rose gardens, and secluded walking trails.",
-    nativeWhySuitable: {
-      Odia: "ବିଶାଳ ପୋଖରୀ ଏବଂ ସବୁଜ ବଗିଚା ଘେରା ପ୍ରଶାନ୍ତ ପରିବେଶ।",
-      Hindi: "विशाल झील और हरे-भरे बगीचों से घिरा अत्यंत शांत वातावरण।"
-    },
     hours: "8:00 AM – 7:00 PM Daily",
     accessibility: "Wide paved footpaths, park benches",
     isDemoData: true
@@ -382,19 +469,18 @@ export const WELLBEING_LOCATIONS = [
     id: "LOC-PUN-001",
     state: "Punjab",
     city: "Chandigarh",
-    name: "Sukhna Lake Promenade & Bird Sanctuary Promenade",
+    name: "Sukhna Lake Promenade",
     nativeNames: {
       Punjabi: "ਸੁਖਨਾ ਝੀਲ ਸੈਰਗਾਹ",
       Hindi: "सुखना झील मार्ग"
     },
-    categories: ["Nature", "Walking", "Scenic place", "Quiet place"],
+    address: "Sector 1, Chandigarh 160001",
+    latitude: 30.7421,
+    longitude: 76.8188,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Walking", "Scenic", "Quiet time"],
     distance: "2.0 km",
     whySuitable: "Peaceful 3 km dam promenade at foothills of Shivalik hills with clean breeze and waterfowl.",
-    nativeWhySuitable: {
-      Punjabi: "ਸ਼ਿਵਾਲਿਕ ਪਹਾੜੀਆਂ ਦੇ ਪੈਰਾਂ ਵਿੱਚ ਸ਼ਾਂਤ ਝੀਲ ਅਤੇ ਖੁੱਲ੍ਹੀ ਹਵਾ ਵਿੱਚ ਸੈਰ।",
-      Hindi: "शिवालिक पहाड़ियों की तलहटी में शांत झील और ताज़ी हवा में टहलने का स्थान।"
-    },
     hours: "5:00 AM – 9:00 PM Daily",
     accessibility: "Flat paved promenade, wheelchair ramps",
     isDemoData: true
@@ -405,49 +491,73 @@ export const WELLBEING_LOCATIONS = [
     id: "LOC-GUJ-001",
     state: "Gujarat",
     city: "Ahmedabad",
-    name: "Law Garden & Parimal Garden Pathways",
+    name: "Parimal Garden Pathways",
     nativeNames: {
-      Gujarati: "લો ગાર્ડન અને પરિમલ ગાર્ડન",
-      Hindi: "लॉ गार्डन एवं परिमल गार्डन"
+      Gujarati: "પરિમલ ગાર્ડન",
+      Hindi: "परिमल गार्डन"
     },
-    categories: ["Nature", "Walking", "Garden/Park", "Quiet place"],
+    address: "Ambawadi, Ahmedabad, Gujarat 380006",
+    latitude: 23.0189,
+    longitude: 72.5562,
+    categories: ["Nature", "Parks", "Quiet Spaces"],
     bestFor: ["Nature", "Walking", "Quiet time"],
     distance: "1.9 km",
-    whySuitable: "Lush manicured public park with lotus pond, shade canopy, and dedicated morning/evening walking loops.",
-    nativeWhySuitable: {
-      Gujarati: "લીલોતરી, શાંત વાતાવરણ અને કમળના તળાવ સાથેની સુંદર ચાલવાની જગ્યા.",
-      Hindi: "हरियाली, शांत माहौल और कमल के तालाब वाला सुंदर पार्क।"
-    },
+    whySuitable: "Lush manicured public park with lotus pond, shade canopy, and dedicated walking loops.",
     hours: "6:00 AM – 9:00 PM Daily",
     accessibility: "Smooth footpaths, multiple wooden rest benches",
     isDemoData: true
   }
 ];
 
-// Helper: Filter locations by query or state/city name
-export function searchLocations({ query = '', preference = 'ALL', categories = [] }) {
+// Pure Text Category Filter Options (No Emojis)
+export const CATEGORY_OPTIONS = [
+  'All',
+  'Nature',
+  'Parks',
+  'Culture',
+  'Quiet Spaces',
+  'Wellness',
+  'Community'
+];
+
+// Helper: Filter locations by query, city, preference, or category
+export function searchLocations({ query = '', city = 'ALL', preference = 'ALL', category = 'All', categories = [] }) {
   const q = (query || '').toLowerCase().trim();
   
   return WELLBEING_LOCATIONS.filter(loc => {
-    // Location / City / State match
-    const matchesQuery = !q || 
-      loc.city.toLowerCase().includes(q) ||
-      loc.state.toLowerCase().includes(q) ||
-      loc.name.toLowerCase().includes(q) ||
-      Object.values(loc.nativeNames || {}).some(name => name.toLowerCase().includes(q));
-
-    // Preference match
-    let matchesPreference = true;
-    if (preference !== 'ALL') {
-      matchesPreference = loc.bestFor.includes(preference) || loc.categories.includes(preference);
+    // City filter
+    if (city !== 'ALL' && loc.city.toLowerCase() !== city.toLowerCase()) {
+      return false;
     }
 
-    // Category filter match
-    let matchesCategories = true;
+    // Singular Category filter
+    if (category !== 'All' && !loc.categories.includes(category)) {
+      return false;
+    }
+
+    // Multiple Categories filter
     if (categories && categories.length > 0) {
-      matchesCategories = categories.some(cat => loc.categories.includes(cat));
+      const matchesCategory = categories.some(cat => loc.categories.includes(cat));
+      if (!matchesCategory) return false;
     }
 
-    return matchesQuery && matchesPreference && matchesCategories;
+    // Preference filter
+    if (preference !== 'ALL' && !loc.bestFor.includes(preference) && !loc.categories.includes(preference)) {
+      return false;
+    }
+
+    // Search Query match
+    if (q) {
+      const matchesName = loc.name.toLowerCase().includes(q);
+      const matchesCity = loc.city.toLowerCase().includes(q);
+      const matchesState = loc.state.toLowerCase().includes(q);
+      const matchesDesc = loc.whySuitable.toLowerCase().includes(q);
+      const matchesNative = Object.values(loc.nativeNames || {}).some(n => n.toLowerCase().includes(q));
+      if (!matchesName && !matchesCity && !matchesState && !matchesDesc && !matchesNative) {
+        return false;
+      }
+    }
+
+    return true;
   });
 }

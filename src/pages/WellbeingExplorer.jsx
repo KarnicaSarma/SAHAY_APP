@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { searchLocations } from '../services/locationData';
+import { searchLocations, CATEGORY_OPTIONS } from '../services/locationData';
+import { WellBeingMap } from '../components/common/WellBeingMap';
 import {
-  Trees, MapPin, Search, Navigation, Globe, Bookmark, ExternalLink, X, Filter, CheckCircle2, Info
+  Trees, MapPin, Search, Navigation, Globe, Bookmark, ExternalLink, X, Filter, CheckCircle2, Info,
+  Footprints, Compass, Map, Sparkles, Coffee, Heart, Sun, Flower2, Volume2
 } from 'lucide-react';
 
 export const WellbeingExplorer = () => {
   const { addToast, addAuditLog } = useApp();
 
   // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState('Guwahati');
+  const [searchQuery, setSearchQuery] = useState('Delhi');
   const [activePreference, setActivePreference] = useState('ALL');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [activeLanguage, setActiveLanguage] = useState('English');
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [inspectingPlace, setInspectingPlace] = useState(null);
+  const [activeMapPlace, setActiveMapPlace] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
 
   // Filtered Locations Result
@@ -25,21 +28,17 @@ export const WellbeingExplorer = () => {
   });
 
   const preferencesList = [
-    { id: 'ALL', label: 'All Places', icon: '✨' },
-    { id: 'Nature', label: 'Be around nature', icon: '🌳' },
-    { id: 'Walking', label: 'Take a peaceful walk', icon: '🚶' },
-    { id: 'Animals', label: 'Spend time around animals', icon: '🐾' },
-    { id: 'Quiet time', label: 'Sit somewhere quiet', icon: '🌿' },
-    { id: 'Scenic', label: 'Enjoy a scenic view', icon: '🌅' },
-    { id: 'Personal time', label: 'Spend personal time', icon: '☕' }
-  ];
-
-  const categoryOptions = [
-    'Nature', 'Walking', 'Quiet place', 'Animals', 'Scenic place', 'Garden/Park', 'Personal time'
+    { id: 'ALL', label: 'All Places', icon: Sparkles },
+    { id: 'Nature', label: 'Be around nature', icon: Trees },
+    { id: 'Walking', label: 'Take a peaceful walk', icon: Footprints },
+    { id: 'Animals', label: 'Spend time around animals', icon: Heart },
+    { id: 'Quiet time', label: 'Sit somewhere quiet', icon: Flower2 },
+    { id: 'Scenic', label: 'Enjoy a scenic view', icon: Sun },
+    { id: 'Personal time', label: 'Spend personal time', icon: Coffee }
   ];
 
   const popularCities = [
-    'Guwahati', 'Bengaluru', 'Mysuru', 'Kochi', 'Chennai', 'Hyderabad',
+    'Delhi', 'Guwahati', 'Bengaluru', 'Kochi', 'Chennai', 'Hyderabad',
     'Kolkata', 'Mumbai', 'Pune', 'Ahmedabad', 'Bhubaneswar', 'Chandigarh'
   ];
 
@@ -51,21 +50,21 @@ export const WellbeingExplorer = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setIsLocating(false);
-          setSearchQuery('Bengaluru'); // Mock location match for demo
-          addToast("Location detected: Bengaluru area matched.", "success");
+          setSearchQuery('Delhi');
+          addToast("Location detected: Delhi area matched.", "success");
           addAuditLog("Geolocation Used", "User requested browser location match for Well-being Explorer.");
         },
         (error) => {
           setIsLocating(false);
-          addToast("Location access denied or unavailable. Defaulted to Guwahati.", "info");
-          setSearchQuery('Guwahati');
+          addToast("Location access denied or unavailable. Defaulted to Delhi.", "info");
+          setSearchQuery('Delhi');
         },
         { timeout: 5000 }
       );
     } else {
       setIsLocating(false);
-      addToast("Geolocation not supported. Showing Guwahati area.", "info");
-      setSearchQuery('Guwahati');
+      addToast("Geolocation not supported. Showing Delhi area.", "info");
+      setSearchQuery('Delhi');
     }
   };
 
@@ -81,6 +80,26 @@ export const WellbeingExplorer = () => {
     );
     addToast(savedPlaces.includes(placeId) ? "Removed from saved places" : "Saved place for your walk!", "success");
   };
+
+  // Render Full Map View if a place is selected for map
+  if (activeMapPlace) {
+    return (
+      <div className="space-y-6 py-2 max-w-6xl mx-auto">
+        <WellBeingMap
+          latitude={activeMapPlace.latitude}
+          longitude={activeMapPlace.longitude}
+          locationName={activeMapPlace.name}
+          address={activeMapPlace.address}
+          city={activeMapPlace.city}
+          distance={activeMapPlace.distance}
+          whySuitable={activeMapPlace.whySuitable}
+          hours={activeMapPlace.hours}
+          accessibility={activeMapPlace.accessibility}
+          onBack={() => setActiveMapPlace(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 py-2 max-w-6xl mx-auto">
@@ -118,13 +137,14 @@ export const WellbeingExplorer = () => {
               className="bg-white border border-slate-300 rounded px-2.5 py-1 font-medium text-slate-900 focus:outline-none text-xs cursor-pointer"
             >
               <option value="English">English</option>
-              <option value="Assamese">Assamese (অসমীয়া)</option>
-              <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
-              <option value="Malayalam">Malayalam (മലയാളം)</option>
-              <option value="Hindi">Hindi (हिंदी)</option>
-              <option value="Tamil">Tamil (தமிழ்)</option>
-              <option value="Telugu">Telugu (తెలుగు)</option>
-              <option value="Bengali">Bengali (বাংলা)</option>
+              <option value="Assamese">Assamese</option>
+              <option value="Kannada">Kannada</option>
+              <option value="Malayalam">Malayalam</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Telugu">Telugu</option>
+              <option value="Bengali">Bengali</option>
+              <option value="Marathi">Marathi</option>
             </select>
           </div>
         </div>
@@ -140,7 +160,7 @@ export const WellbeingExplorer = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Enter city, locality or area (e.g. Guwahati, Bengaluru, Kochi)..."
+              placeholder="Enter city, locality or area (e.g. Delhi, Guwahati, Bengaluru, Kochi)..."
               className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-slate-500 font-medium"
             />
           </div>
@@ -182,20 +202,23 @@ export const WellbeingExplorer = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
-          {preferencesList.map((pref) => (
-            <button
-              key={pref.id}
-              onClick={() => setActivePreference(pref.id)}
-              className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
-                activePreference === pref.id
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                  : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-400'
-              }`}
-            >
-              <span className="text-xl">{pref.icon}</span>
-              <span className="text-center leading-tight text-[11px]">{pref.label}</span>
-            </button>
-          ))}
+          {preferencesList.map((pref) => {
+            const IconComp = pref.icon;
+            return (
+              <button
+                key={pref.id}
+                onClick={() => setActivePreference(pref.id)}
+                className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                  activePreference === pref.id
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                    : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-400'
+                }`}
+              >
+                <IconComp className="w-5 h-5" />
+                <span className="text-center leading-tight text-[11px]">{pref.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -203,11 +226,11 @@ export const WellbeingExplorer = () => {
       <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-xs space-y-2 text-xs">
         <div className="font-semibold text-slate-500 flex items-center gap-1.5">
           <Filter className="w-3.5 h-3.5 text-slate-700" />
-          <span>Filter Features:</span>
+          <span>Filter Categories:</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          {categoryOptions.map((cat) => (
+          {CATEGORY_OPTIONS.filter(c => c !== 'All').map((cat) => (
             <label
               key={cat}
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-medium cursor-pointer transition-colors ${
@@ -290,11 +313,7 @@ export const WellbeingExplorer = () => {
                 <div className="flex flex-wrap items-center gap-1 pt-1">
                   {place.bestFor.map(b => (
                     <span key={b} className="text-[10px] bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-slate-700 font-medium">
-                      {b === 'Nature' && '🌳 Nature'}
-                      {b === 'Walking' && '🚶 Walking'}
-                      {b === 'Quiet time' && '🌿 Quiet Time'}
-                      {b === 'Animals' && '🐾 Animals'}
-                      {b === 'Scenic' && '🌅 Scenic'}
+                      {b}
                     </span>
                   ))}
                 </div>
@@ -322,21 +341,19 @@ export const WellbeingExplorer = () => {
               <div className="pt-3 border-t border-slate-200 flex items-center gap-2">
                 <button
                   onClick={() => setInspectingPlace(place)}
-                  className="flex-1 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer flex items-center justify-center gap-1 shadow-xs transition-colors"
+                  className="flex-1 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs cursor-pointer flex items-center justify-center gap-1 transition-colors"
                 >
-                  <Info className="w-3.5 h-3.5" />
-                  <span>Place Details</span>
+                  <Info className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Details</span>
                 </button>
 
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(place.name + " " + place.city)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded bg-slate-100 border border-slate-200 text-slate-800 hover:bg-slate-200 font-semibold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                <button
+                  onClick={() => setActiveMapPlace(place)}
+                  className="flex-1 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-xs"
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-700" />
-                  <span>Directions</span>
-                </a>
+                  <Map className="w-3.5 h-3.5" />
+                  <span>View Map</span>
+                </button>
               </div>
 
             </div>
@@ -363,7 +380,7 @@ export const WellbeingExplorer = () => {
             <div className="space-y-3 text-xs text-slate-800">
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
                 <div className="font-semibold text-slate-900">Location:</div>
-                <div>{inspectingPlace.city}, {inspectingPlace.state} • {inspectingPlace.distance}</div>
+                <div>{inspectingPlace.address || `${inspectingPlace.city}, ${inspectingPlace.state}`} • {inspectingPlace.distance}</div>
               </div>
 
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
@@ -381,15 +398,17 @@ export const WellbeingExplorer = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(inspectingPlace.name + " " + inspectingPlace.city)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  const p = inspectingPlace;
+                  setInspectingPlace(null);
+                  setActiveMapPlace(p);
+                }}
                 className="px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer flex items-center gap-1.5"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Get Directions</span>
-              </a>
+                <Map className="w-3.5 h-3.5" />
+                <span>Open In-App Map</span>
+              </button>
             </div>
           </div>
         </div>
